@@ -1,23 +1,25 @@
 const User = require("../models/User.model");
-
+const bcrypt = require("bcryptjs");
 const router = require("express").Router();
 
 // POST "/api/auth/signup" => Crear usuario en la DB
 router.post("/signup", async (req, res, next) => {
-  console.log(req.body);
   const { email, username, location, password, phoneNumber } = req.body;
+
   try {
-    const response = await User.create({
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    await User.create({
       email,
       username,
       location,
-      password,
+      password: hashPassword,
       phoneNumber,
     });
-    console.log(response);
+
     res.status(201).json();
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
