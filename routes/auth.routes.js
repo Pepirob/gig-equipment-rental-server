@@ -85,6 +85,40 @@ router.post("/signup", async (req, res, next) => {
 });
 
 // POST "/api/auth/login" => Crear sesion en la DB
+router.post("/login", async (req, res, next) => {
+  const { identifier, password } = req.body;
+
+  if (!identifier || !password) {
+    res.status(400).json({ errorMessage: "Fields must be filled" });
+    return;
+  }
+
+  try {
+    const foundUser = await User.findOne({
+      $or: [{ username: identifier }, { email: identifier }],
+    });
+    const errorMesage = "Invalid credentials";
+
+    if (!foundUser) {
+      res.status(400).json({ errorMesage });
+      return;
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      foundUser.password
+    );
+
+    if (!isPasswordCorrect) {
+      res.status(400).json({ errorMesage });
+      return;
+    }
+
+    res.status(201).json();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // GET "/api/auth/verify" => Verificar usuario activo
 
