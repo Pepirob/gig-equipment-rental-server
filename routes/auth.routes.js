@@ -6,6 +6,11 @@ const router = require("express").Router();
 router.post("/signup", async (req, res, next) => {
   const { email, username, location, password, phoneNumber } = req.body;
 
+  if (!email || !username || !location || !password || !phoneNumber) {
+    res.status(400).json({ errorMessage: "Fields must be filled" });
+    return;
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
