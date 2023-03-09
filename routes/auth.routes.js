@@ -11,6 +11,26 @@ router.post("/signup", async (req, res, next) => {
     return;
   }
 
+  if (password.length < 9 || password.length > 15) {
+    res.status(400).json({
+      errorMessage:
+        "password must containt at least 9 characters and no more than 15",
+    });
+    return;
+  }
+
+  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{9,}$/;
+
+  if (!passwordRegex.test(password)) {
+    res
+      .status(400)
+      .json({
+        errorMessage:
+          "must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number",
+      });
+    return;
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
