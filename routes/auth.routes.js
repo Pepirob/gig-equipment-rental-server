@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
 
+const isAuthenticated = require("../middlewares/auth.middlewares");
+
 // POST "/api/auth/signup" => Crear usuario en la DB
 router.post("/signup", async (req, res, next) => {
   const { email, username, location, password, phoneNumber } = req.body;
@@ -135,5 +137,8 @@ router.post("/login", async (req, res, next) => {
 });
 
 // GET "/api/auth/verify" => Verificar usuario activo
+router.get("/verify", isAuthenticated, (req, res, next) => {
+  res.status(200).json(req.payload);
+});
 
 module.exports = router;
