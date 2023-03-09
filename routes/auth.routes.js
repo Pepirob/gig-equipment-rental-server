@@ -1,6 +1,7 @@
 const User = require("../models/User.model");
 const bcrypt = require("bcryptjs");
 const router = require("express").Router();
+const jwt = require("jsonwebtoken");
 
 // POST "/api/auth/signup" => Crear usuario en la DB
 router.post("/signup", async (req, res, next) => {
@@ -114,7 +115,20 @@ router.post("/login", async (req, res, next) => {
       return;
     }
 
-    res.status(201).json();
+    const payload = {
+      _id: foundUser._id,
+      email: foundUser.email,
+      username: foundUser.username,
+    };
+
+    const tokenConfig = {
+      algorithm: "HS256",
+      expiresIn: "3d",
+    };
+
+    const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, tokenConfig);
+
+    res.status(200).json({ authToken });
   } catch (error) {
     next(error);
   }
