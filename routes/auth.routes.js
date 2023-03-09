@@ -14,7 +14,7 @@ router.post("/signup", async (req, res, next) => {
   if (password.length < 9 || password.length > 15) {
     res.status(400).json({
       errorMessage:
-        "password must containt at least 9 characters and no more than 15",
+        "Password must contain at least 9 characters and no more than 15",
     });
     return;
   }
@@ -22,12 +22,20 @@ router.post("/signup", async (req, res, next) => {
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{9,}$/;
 
   if (!passwordRegex.test(password)) {
-    res
-      .status(400)
-      .json({
-        errorMessage:
-          "must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number",
-      });
+    res.status(400).json({
+      errorMessage:
+        "Must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number",
+    });
+    return;
+  }
+
+  const emailRegex =
+    /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
+
+  if (!emailRegex.test(password)) {
+    res.status(400).json({
+      errorMessage: "E-mail must meet the correct format",
+    });
     return;
   }
 
