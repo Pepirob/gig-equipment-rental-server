@@ -32,18 +32,18 @@ router.post("/signup", async (req, res, next) => {
   const emailRegex =
     /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
 
-  if (!emailRegex.test(password)) {
+  if (!emailRegex.test(email)) {
     res.status(400).json({
-      errorMessage: "E-mail must meet the correct format",
+      errorMessage: "E-mail must meet the correct format i",
     });
     return;
   }
 
   const phoneNumberRegex = /^\+[1-9]\d{1,14}$/g;
 
-  if (!phoneNumberRegex.test(password)) {
+  if (!phoneNumberRegex.test(phoneNumber)) {
     res.status(400).json({
-      errorMessage: "Phone numbe must meet the correct format",
+      errorMessage: "Phone number must meet the correct format",
     });
     return;
   }
