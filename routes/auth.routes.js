@@ -39,6 +39,15 @@ router.post("/signup", async (req, res, next) => {
     return;
   }
 
+  const phoneNumberRegex = /^\+[1-9]\d{1,14}$/g;
+
+  if (!phoneNumberRegex.test(password)) {
+    res.status(400).json({
+      errorMessage: "Phone numbe must meet the correct format",
+    });
+    return;
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
