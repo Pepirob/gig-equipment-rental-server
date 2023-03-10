@@ -37,7 +37,7 @@ router.post("/signup", async (req, res, next) => {
 
   if (!emailRegex.test(email)) {
     res.status(400).json({
-      errorMessage: "E-mail must meet the correct format i",
+      errorMessage: "E-mail must meet the correct format",
     });
     return;
   }
@@ -46,7 +46,7 @@ router.post("/signup", async (req, res, next) => {
 
   if (!phoneNumberRegex.test(phoneNumber)) {
     res.status(400).json({
-      errorMessage: "Phone number must meet the correct format",
+      errorMessage: "Phone number must meet the correct format: +00000000000",
     });
     return;
   }
