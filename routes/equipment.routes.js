@@ -1,6 +1,6 @@
 const Equipment = require("../models/Equipment.model");
 const router = require("express").Router();
-const { isAuthenticated } = require("../middlewares/auth.middlewares");
+const isAuthenticated = require("../middlewares/auth.middlewares");
 
 router.post("/", isAuthenticated, async (req, res, next) => {
   const { name, pricePerDay, deposit, description, img } = req.body;
