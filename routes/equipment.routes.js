@@ -2,6 +2,7 @@ const Equipment = require("../models/Equipment.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
 
+// POST "/api/equipment" => Crear equipment en la DB
 router.post("/", isAuthenticated, async (req, res, next) => {
   const { name, pricePerDay, deposit, description, img } = req.body;
 
@@ -46,3 +47,16 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 module.exports = router;
+
+// DELETE "/api/equipment/:equId" => Eliminar equipment en la DB por su id
+
+router.delete("/:equId", isAuthenticated, async (req, res, next) => {
+  const { equId } = req.params;
+
+  try {
+    await Equipment.findByIdAndDelete(equId);
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
