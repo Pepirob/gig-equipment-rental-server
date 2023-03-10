@@ -9,6 +9,7 @@ const equipmentSquema = new Schema(
     name: {
       type: String,
       required: [true, "Equipment name is required."],
+      lowercase: true,
     },
     pricePerDay: {
       type: Number,
