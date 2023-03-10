@@ -100,10 +100,10 @@ router.post("/login", async (req, res, next) => {
     const foundUser = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
     });
-    const errorMesage = "Invalid credentials";
+    const errorMessage = "Invalid credentials";
 
     if (!foundUser) {
-      res.status(400).json({ errorMesage });
+      res.status(400).json({ errorMessage });
       return;
     }
 
@@ -113,7 +113,7 @@ router.post("/login", async (req, res, next) => {
     );
 
     if (!isPasswordCorrect) {
-      res.status(400).json({ errorMesage });
+      res.status(400).json({ errorMessage });
       return;
     }
 
