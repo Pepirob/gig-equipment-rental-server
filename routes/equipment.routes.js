@@ -25,6 +25,13 @@ router.post("/", isAuthenticated, async (req, res, next) => {
       return;
     }
 
+    if (description.length > 650) {
+      res
+        .status(400)
+        .json({ errorMessage: "Description cannot exceed 650 characters" });
+      return;
+    }
+
     const response = await Equipment.create({
       name,
       pricePerDay,
