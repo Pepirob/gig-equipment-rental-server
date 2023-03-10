@@ -137,7 +137,7 @@ router.post("/login", async (req, res, next) => {
 });
 
 // GET "/api/auth/verify" => Verificar usuario activo
-router.get("/verify", isAuthenticated, (req, res, next) => {
+router.get("/verify", isAuthenticated, (req, res) => {
   res.status(200).json(req.payload);
 });
 
