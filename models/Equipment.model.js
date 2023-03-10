@@ -8,15 +8,15 @@ const equipmentSquema = new Schema(
     },
     name: {
       type: String,
-      required: true,
+      required: [true, "Equipment name is required."],
     },
     pricePerDay: {
       type: Number,
-      required: true,
+      required: [true, "Price per day is required."],
     },
     deposit: {
       type: Number,
-      required: true,
+      required: [true, "Deposit is required."],
     },
     description: {
       type: String,
@@ -25,7 +25,6 @@ const equipmentSquema = new Schema(
     img: {
       type: String,
       default: "https://cdn-icons-png.flaticon.com/512/1249/1249374.png",
-      required: true,
     },
     available: {
       type: Boolean,
