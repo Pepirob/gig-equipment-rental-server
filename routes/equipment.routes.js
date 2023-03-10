@@ -32,7 +32,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
       return;
     }
 
-    const response = await Equipment.create({
+    await Equipment.create({
       name,
       pricePerDay,
       deposit,
