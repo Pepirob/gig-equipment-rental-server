@@ -13,4 +13,16 @@ router.post("/equipmentImg", uploader.single("image"), (req, res, next) => {
   res.json({ equipmentImgUrl: req.file.path });
 });
 
+// POST "/api/upload/userImg" => Subir imagen de user a Cloudinary
+router.post("/userImg", uploader.single("image"), (req, res, next) => {
+  console.log("file is: ", req.file);
+
+  if (!req.file) {
+    next("No file uploaded!");
+    return;
+  }
+
+  res.json({ equipmentImgUrl: req.file.path });
+});
+
 module.exports = router;
