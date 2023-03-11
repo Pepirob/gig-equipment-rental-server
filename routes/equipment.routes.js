@@ -51,8 +51,8 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 
-//  GET "/api/equipment/available" => Equipos disponibles por usuario que tenga la localización de la query.
-router.get("/available", async (req, res, next) => {
+//  GET "/api/equipment/" => Equipos disponibles por usuario que tenga la localización de la query.
+router.get("/", async (req, res, next) => {
   const { location } = req.query;
 
   const locationRegex = new RegExp(location);
