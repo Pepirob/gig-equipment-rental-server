@@ -2,8 +2,10 @@ const Equipment = require("../models/Equipment.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
 
+// POST "/api/equipment" => Crear equipment en la DB
 router.post("/", isAuthenticated, async (req, res, next) => {
   const { name, pricePerDay, deposit, description, img } = req.body;
+  const { _id } = req.payload;
 
   try {
     if (!name) {
@@ -33,6 +35,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
     }
 
     await Equipment.create({
+      owner: _id,
       name,
       pricePerDay,
       deposit,
@@ -46,3 +49,39 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 module.exports = router;
+
+// PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
+router.patch("/:equId", isAuthenticated, async (req, res, next) => {
+  const { equId } = req.params;
+  const { owner, name, pricePerDay, deposit, description, img, isAvailable } =
+    req.body;
+
+  try {
+    await Equipment.findByIdAndUpdate(equId, {
+      owner,
+      name,
+      pricePerDay,
+      deposit,
+      description,
+      img,
+      isAvailable,
+    });
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE "/api/equipment/:equId" => Eliminar equipment en la DB por su id
+
+router.delete("/:equId", isAuthenticated, async (req, res, next) => {
+  const { equId } = req.params;
+
+  try {
+    await Equipment.findByIdAndDelete(equId);
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
