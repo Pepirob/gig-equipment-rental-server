@@ -38,4 +38,13 @@ router.patch("/:userId", async (req, res, next) => {
 
 // DELETE   “/api/user/userId” => Eliminar a un usuario por su Id
 
+router.delete("/:userId", async (req, res, next) => {
+  try {
+    await User.findByIdAndDelete(req.params.userId);
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
