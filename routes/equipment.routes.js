@@ -48,6 +48,28 @@ router.post("/", isAuthenticated, async (req, res, next) => {
 });
 module.exports = router;
 
+// PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
+router.patch("/:equId", isAuthenticated, async (req, res, next) => {
+  const { equId } = req.params;
+  const { name, pricePerDay, deposit, description, img, isAvailable } =
+    req.body;
+
+  try {
+    await Equipment.findByIdAndUpdate(equId, {
+      name,
+      pricePerDay,
+      deposit,
+      description,
+      img,
+      isAvailable,
+    });
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE "/api/equipment/:equId" => Eliminar equipment en la DB por su id
 
 router.delete("/:equId", isAuthenticated, async (req, res, next) => {
