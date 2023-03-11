@@ -119,6 +119,18 @@ router.get("/my-equipment", isAuthenticated, async (req, res, next) => {
   }
 });
 
+// GET "/api/equipment/:equId" => enviar detalles de equipment por id
+router.get("/:equId", async (req, res, next) => {
+  const { equId } = req.params;
+
+  try {
+    const response = await Equipment.findById(equId);
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
 router.patch("/:equId", isAuthenticated, async (req, res, next) => {
   const { equId } = req.params;
