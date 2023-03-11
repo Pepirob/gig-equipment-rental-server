@@ -5,6 +5,7 @@ const isAuthenticated = require("../middlewares/auth.middlewares");
 // POST "/api/equipment" => Crear equipment en la DB
 router.post("/", isAuthenticated, async (req, res, next) => {
   const { name, pricePerDay, deposit, description, img } = req.body;
+  const { _id } = req.payload;
 
   try {
     if (!name) {
@@ -34,6 +35,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
     }
 
     await Equipment.create({
+      owner: _id,
       name,
       pricePerDay,
       deposit,
@@ -51,11 +53,12 @@ module.exports = router;
 // PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
 router.patch("/:equId", isAuthenticated, async (req, res, next) => {
   const { equId } = req.params;
-  const { name, pricePerDay, deposit, description, img, isAvailable } =
+  const { owner, name, pricePerDay, deposit, description, img, isAvailable } =
     req.body;
 
   try {
     await Equipment.findByIdAndUpdate(equId, {
+      owner,
       name,
       pricePerDay,
       deposit,
