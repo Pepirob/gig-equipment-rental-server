@@ -51,7 +51,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 
-//  GET "/api/equipment/available" => enviar lista de equipment disponible y ordenada por actualización  // query por localización
+//  GET "/api/equipment/available" => Equipos DISPONIBLES, por usuario que tenga la localización de la query.
 router.get("/available", async (req, res, next) => {
   const { location } = req.query;
 
@@ -69,7 +69,7 @@ router.get("/available", async (req, res, next) => {
 
       const locatedEquipment = await Promise.all(
         usersIdArr.map(async (userId) => {
-          return await Equipment.find({ owner: userId });
+          return await Equipment.find({ owner: userId, isAvailable: true });
         })
       );
 
@@ -106,7 +106,7 @@ router.get("/wishlist", isAuthenticated, async (req, res, next) => {
 
 module.exports = router;
 
-// GET "/api/equipment/mine" => enviar lista del equipment del usuario loggeado
+// GET "/api/equipment/my-equipment" => enviar lista del equipment del usuario loggeado
 router.get("/my-equipment", isAuthenticated, async (req, res, next) => {
   const { _id } = req.payload;
 
