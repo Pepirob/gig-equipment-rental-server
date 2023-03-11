@@ -27,7 +27,7 @@ const equipmentSquema = new Schema(
       type: String,
       default: "https://cdn-icons-png.flaticon.com/512/1249/1249374.png",
     },
-    available: {
+    isAvailable: {
       type: Boolean,
       default: true,
     },
