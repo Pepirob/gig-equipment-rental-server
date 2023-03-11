@@ -1,10 +1,10 @@
 const User = require("../models/User.model");
-
 const router = require("express").Router();
+const isAuthenticated = require("../middlewares/auth.middlewares");
 
 // GET “/api/user/:userId” => Enviar info de un usuario por su Id
 
-router.get("/:userId", async (req, res, next) => {
+router.get("/:userId", isAuthenticated, async (req, res, next) => {
   try {
     const response = await User.findById(req.params.userId);
     res.status(200).json(response);
@@ -15,12 +15,19 @@ router.get("/:userId", async (req, res, next) => {
 
 // PATCH “/api/user/:userId” => Editar un usuario por su Id
 
-router.patch("/:userId", async (req, res, next) => {
+router.patch("/:userId", isAuthenticated, async (req, res, next) => {
+  const { userId } = req.params;
+  const activeUserId = req.payload._id;
+
   const { email, username, location, phoneNumber, wishlist, img, creditCard } =
     req.body;
 
+  if (userId !== activeUserId) {
+    res.status(403).json("Users cannot edit other users");
+  }
+
   try {
-    await User.findByIdAndUpdate(req.params.userId, {
+    await User.findByIdAndUpdate(userId, {
       email,
       username,
       location,
@@ -38,7 +45,7 @@ router.patch("/:userId", async (req, res, next) => {
 
 // DELETE   “/api/user/userId” => Eliminar a un usuario por su Id
 
-router.delete("/:userId", async (req, res, next) => {
+router.delete("/:userId", isAuthenticated, async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.userId);
     res.status(200).json();
