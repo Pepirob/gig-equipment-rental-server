@@ -1,6 +1,8 @@
 const Equipment = require("../models/Equipment.model");
+const User = require("../models/User.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
+const ObjectId = require("mongodb").ObjectId;
 
 // POST "/api/equipment" => Crear equipment en la DB
 router.post("/", isAuthenticated, async (req, res, next) => {
@@ -48,7 +50,87 @@ router.post("/", isAuthenticated, async (req, res, next) => {
     next(error);
   }
 });
+
+//  GET "/api/equipment/available" => Equipos disponibles por usuario que tenga la localización de la query.
+router.get("/available", async (req, res, next) => {
+  const { location } = req.query;
+
+  const locationRegex = new RegExp(location);
+
+  if (location) {
+    try {
+      const locatedUsers = await User.find({
+        location: { $regex: locationRegex },
+      }).select({ _id: 1 });
+
+      const usersIdArr = locatedUsers.map((user) => {
+        return user._id;
+      });
+
+      const locatedEquipment = await Promise.all(
+        usersIdArr.map(async (userId) => {
+          return await Equipment.find({ owner: userId, isAvailable: true });
+        })
+      );
+
+      const sortedEquipment = [...locatedEquipment]
+        .reduce((a, b) => a.concat(b), [])
+        .sort((a, b) => a.updatedAt - b.updatedAt);
+
+      res.status(200).json(sortedEquipment);
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    try {
+      const response = await Equipment.find({ isAvailable: true }).sort({
+        updatedAt: -1,
+      });
+
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+});
+
+// GET "/api/equipment/wishlist" => enviar lista de deseos
+router.get("/wishlist", isAuthenticated, async (req, res, next) => {
+  try {
+    const response = await User.find().select({ wishlist: 1 });
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
+
+// GET "/api/equipment/my-equipment" => enviar lista del equipment del usuario loggeado
+router.get("/my-equipment", isAuthenticated, async (req, res, next) => {
+  const { _id } = req.payload;
+
+  try {
+    const response = await Equipment.find({ owner: _id }).sort({
+      updatedAt: -1,
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET "/api/equipment/:equId" => enviar detalles de equipment por id
+router.get("/:equId", async (req, res, next) => {
+  const { equId } = req.params;
+
+  try {
+    const response = await Equipment.findById(equId);
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
 router.patch("/:equId", isAuthenticated, async (req, res, next) => {
