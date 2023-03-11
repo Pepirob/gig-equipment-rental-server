@@ -50,7 +50,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 
-// GET "/api/equipment/available" => enviar lista de equipment disponible y ordenada por actualización
+//  GET "/api/equipment/available" => enviar lista de equipment disponible y ordenada por actualización  // query por localización
 router.get("/available", async (req, res, next) => {
   const { location } = req.query;
 
@@ -94,7 +94,7 @@ router.get("/available", async (req, res, next) => {
 });
 
 // GET "/api/equipment/wishlist" => enviar lista de deseos
-router.get("/wishlist", async (req, res, next) => {
+router.get("/wishlist", isAuthenticated, async (req, res, next) => {
   try {
     const response = await User.find().select({ wishlist: 1 });
     res.status(200).json(response);
@@ -104,6 +104,20 @@ router.get("/wishlist", async (req, res, next) => {
 });
 
 module.exports = router;
+
+// GET "/api/equipment/mine" => enviar lista del equipment del usuario loggeado
+router.get("/my-equipment", isAuthenticated, async (req, res, next) => {
+  const { _id } = req.payload;
+
+  try {
+    const response = await Equipment.find({ owner: _id }).sort({
+      updatedAt: -1,
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
 router.patch("/:equId", isAuthenticated, async (req, res, next) => {
