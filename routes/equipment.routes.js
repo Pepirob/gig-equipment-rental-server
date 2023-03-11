@@ -3,6 +3,7 @@ const User = require("../models/User.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
 const ObjectId = require("mongodb").ObjectId;
+
 // POST "/api/equipment" => Crear equipment en la DB
 router.post("/", isAuthenticated, async (req, res, next) => {
   const { name, pricePerDay, deposit, description, img } = req.body;
