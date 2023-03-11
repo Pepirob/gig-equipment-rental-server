@@ -15,6 +15,27 @@ router.get("/:userId", async (req, res, next) => {
 
 // PATCH “/api/user/:userId” => Editar un usuario por su Id
 
+router.patch("/:userId", async (req, res, next) => {
+  const { email, username, location, phoneNumber, wishlist, img, creditCard } =
+    req.body;
+
+  try {
+    await User.findByIdAndUpdate(req.params.userId, {
+      email,
+      username,
+      location,
+      phoneNumber,
+      wishlist,
+      img,
+      creditCard,
+    });
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // DELETE   “/api/user/userId” => Eliminar a un usuario por su Id
 
 module.exports = router;
