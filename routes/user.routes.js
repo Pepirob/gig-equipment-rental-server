@@ -46,6 +46,13 @@ router.patch("/:userId", isAuthenticated, async (req, res, next) => {
 // DELETE   “/api/user/userId” => Eliminar a un usuario por su Id
 
 router.delete("/:userId", isAuthenticated, async (req, res, next) => {
+  const { userId } = req.params;
+  const activeUserId = req.payload._id;
+
+  if (userId !== activeUserId) {
+    res.status(403).json("Users cannot delete other users");
+  }
+
   try {
     await User.findByIdAndDelete(req.params.userId);
     res.status(200).json();
