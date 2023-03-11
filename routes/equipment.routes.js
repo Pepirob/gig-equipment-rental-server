@@ -2,7 +2,7 @@ const Equipment = require("../models/Equipment.model");
 const User = require("../models/User.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
-
+const ObjectId = require("mongodb").ObjectId;
 // POST "/api/equipment" => Crear equipment en la DB
 router.post("/", isAuthenticated, async (req, res, next) => {
   const { name, pricePerDay, deposit, description, img } = req.body;
@@ -50,16 +50,46 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 
-// GET "/api/equipment/isAvailable" => enviar lista de equipment disponible y ordenada por actualización
+// GET "/api/equipment/available" => enviar lista de equipment disponible y ordenada por actualización
 router.get("/available", async (req, res, next) => {
-  try {
-    const response = await Equipment.find({ isAvailable: true }).sort({
-      updatedAt: -1,
-    });
-    // console.log(response);
-    res.status(200).json(response);
-  } catch (error) {
-    next(error);
+  const { location } = req.query;
+
+  const locationRegex = new RegExp(location);
+
+  if (location) {
+    try {
+      const locatedUsers = await User.find({
+        location: { $regex: locationRegex },
+      }).select({ _id: 1 });
+
+      const usersIdArr = locatedUsers.map((user) => {
+        return user._id;
+      });
+
+      const locatedEquipment = await Promise.all(
+        usersIdArr.map(async (userId) => {
+          return await Equipment.find({ owner: userId });
+        })
+      );
+
+      const sortedEquipment = [...locatedEquipment]
+        .reduce((a, b) => a.concat(b), [])
+        .sort((a, b) => a.updatedAt - b.updatedAt);
+
+      res.status(200).json(sortedEquipment);
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    try {
+      const response = await Equipment.find({ isAvailable: true }).sort({
+        updatedAt: -1,
+      });
+
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
   }
 });
 
