@@ -10,4 +10,7 @@ router.use("/auth", authRouter);
 const equipmentRouter = require("./equipment.routes");
 router.use("/equipment", equipmentRouter);
 
+const uploadRouter = require("./upload.routes");
+router.use("/upload", uploadRouter);
+
 module.exports = router;
