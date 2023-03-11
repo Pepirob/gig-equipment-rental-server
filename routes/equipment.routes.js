@@ -1,4 +1,5 @@
 const Equipment = require("../models/Equipment.model");
+const User = require("../models/User.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
 
@@ -48,6 +49,30 @@ router.post("/", isAuthenticated, async (req, res, next) => {
     next(error);
   }
 });
+
+// GET "/api/equipment/isAvailable" => enviar lista de equipment disponible y ordenada por actualización
+router.get("/available", async (req, res, next) => {
+  try {
+    const response = await Equipment.find({ isAvailable: true }).sort({
+      updatedAt: -1,
+    });
+    // console.log(response);
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET "/api/equipment/wishlist" => enviar lista de deseos
+router.get("/wishlist", async (req, res, next) => {
+  try {
+    const response = await User.find().select({ wishlist: 1 });
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
 
 // PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
