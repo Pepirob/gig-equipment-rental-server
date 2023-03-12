@@ -22,7 +22,7 @@ router.post("/userImg", uploader.single("image"), (req, res, next) => {
     return;
   }
 
-  res.json({ equipmentImgUrl: req.file.path });
+  res.json({ userImgUrl: req.file.path });
 });
 
 module.exports = router;
