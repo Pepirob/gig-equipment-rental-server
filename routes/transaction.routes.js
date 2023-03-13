@@ -47,3 +47,24 @@ router.post(
     }
   }
 );
+
+// PATCH "/update-payment-intent" => Actualizar intento de pago
+router.patch("/update-payment-intent", async (req, res, next) => {
+  const { clientSecret, paymentIntentId } = req.body;
+
+  try {
+    await Transaction.findOneAndUpdate(
+      {
+        clientSecret: clientSecret,
+        paymentIntentId: paymentIntentId,
+      },
+      {
+        status: "succeeded",
+      }
+    );
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
