@@ -26,13 +26,6 @@ router.post(
         query: `email: "${email}"`,
       });
 
-      // if (!foundUser.data.length) {
-      //   await stripe.customers.create({
-      //     email,
-      //     name: username,
-      //   });
-      // }
-
       const getCustomer = async () => {
         if (foundUser.data.length) {
           return foundUser.data[0].id;
