@@ -159,6 +159,12 @@ router.patch("/:equId", isAuthenticated, async (req, res, next) => {
 
 router.delete("/:equId", isAuthenticated, async (req, res, next) => {
   const { equId } = req.params;
+  const { _id } = req.payload;
+  const { ownerId } = req.query;
+
+  if (_id !== ownerId) {
+    res.status(403).json("You cannot delete other user equipment");
+  }
 
   try {
     await Equipment.findByIdAndDelete(equId);
