@@ -59,7 +59,7 @@ router.patch("/update-payment-intent", async (req, res, next) => {
         paymentIntentId: paymentIntentId,
       },
       {
-        status: "succeeded",
+        state: "succeeded",
       }
     );
 
