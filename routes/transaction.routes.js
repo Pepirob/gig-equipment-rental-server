@@ -12,6 +12,7 @@ router.post(
   async (req, res, next) => {
     const equipId = req.body._id;
     const { username, email } = req.payload;
+    const { totalDays } = req.query;
 
     try {
       // TODO: pass DAY AMOUNT from Frontend service
@@ -20,7 +21,8 @@ router.post(
         deposit: 1,
       });
 
-      const totalToCents = (equipment.pricePerDay + equipment.deposit) * 100;
+      const totalToCents =
+        (equipment.pricePerDay * totalDays + equipment.deposit) * 100;
 
       const foundUser = await stripe.customers.search({
         query: `email: "${email}"`,
