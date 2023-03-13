@@ -20,6 +20,14 @@ const transactionSchema = new Schema(
       enum: ["incomplete", "succeeded"],
       default: "incomplete",
     },
+    paymentIntentId: {
+      type: String,
+      required: true,
+    },
+    clientSecret: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
