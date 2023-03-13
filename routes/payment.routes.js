@@ -16,7 +16,10 @@ router.post("/create-payment-intent", async (req, res, next) => {
 
     const totalToCents = (equipment.pricePerDay + equipment.deposit) * 100;
 
+    const customer = await stripe.customers.create();
+
     const paymentIntent = await stripe.paymentIntents.create({
+      customer: customer.id,
       amount: totalToCents,
       currency: "eur",
       automatic_payment_methods: {
