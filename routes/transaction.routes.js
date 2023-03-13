@@ -11,7 +11,7 @@ router.post(
   isAuthenticated,
   async (req, res, next) => {
     const equipId = req.body._id;
-    const { username, email, _id } = req.payload;
+    const { username, email } = req.payload;
 
     try {
       // TODO: pass DAY AMOUNT from Frontend service
