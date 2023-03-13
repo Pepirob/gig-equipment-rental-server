@@ -11,6 +11,7 @@ router.post(
   isAuthenticated,
   async (req, res, next) => {
     const equipId = req.body._id;
+    const { username, email, _id } = req.payload;
 
     try {
       // TODO: pass DAY AMOUNT from Frontend service
@@ -21,7 +22,11 @@ router.post(
 
       const totalToCents = (equipment.pricePerDay + equipment.deposit) * 100;
 
-      const customer = await stripe.customers.create();
+      const customer = await stripe.customers.create({
+        email,
+        name: username,
+        id: _id,
+      });
 
       const paymentIntent = await stripe.paymentIntents.create({
         customer: customer.id,
