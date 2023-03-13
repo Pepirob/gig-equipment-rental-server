@@ -22,20 +22,43 @@ router.post(
 
       const totalToCents = (equipment.pricePerDay + equipment.deposit) * 100;
 
-      const customer = await stripe.customers.create({
-        email,
-        name: username,
-        id: _id,
+      const foundUser = await stripe.customers.search({
+        query: `email: "${email}"`,
       });
 
+      // if (!foundUser.data.length) {
+      //   await stripe.customers.create({
+      //     email,
+      //     name: username,
+      //   });
+      // }
+
+      const getCustomer = async () => {
+        if (foundUser.data.length) {
+          return foundUser.data[0].id;
+        } else {
+          const customer = await stripe.customers.create({
+            email,
+            name: username,
+          });
+
+          return customer.id;
+        }
+      };
+
+      // TODO bind payment method to paymentIntent instead of customer ID
+      // Will implie pick credit cart from frontend,
+      // tokenize it with Stripe tools,
       const paymentIntent = await stripe.paymentIntents.create({
-        customer: customer.id,
+        customer: getCustomer(),
+        setup_future_usage: "off_session",
         amount: totalToCents,
         currency: "eur",
         automatic_payment_methods: {
           enabled: true,
         },
       });
+
       // TODO daysRented
       await Transaction.create({
         equipment: equipId,
