@@ -1,4 +1,5 @@
 const User = require("../models/User.model");
+const Transaction = require("../models/Transaction.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
 
@@ -56,8 +57,27 @@ router.delete("/:userId", isAuthenticated, async (req, res, next) => {
   }
 
   try {
-    await User.findByIdAndDelete(req.params.userId);
-    res.status(200).json();
+    const nonReturnedTransactions = await Transaction.find({
+      state: { $nin: ["incompleted", "returned"] },
+    })
+      .select({ equipment: 1, client: 1 })
+      .populate("equipment", "owner");
+
+    if (
+      nonReturnedTransactions.some(
+        (transaction) =>
+          transaction.equipment.owner === activeUserId ||
+          transaction.client._id.equals(activeUserId)
+      )
+    ) {
+      res
+        .status(403)
+        .json("Users with pending transactions cannot delete their accounts");
+      return;
+    } else {
+      await User.findByIdAndDelete(req.params.userId);
+      res.status(200).json();
+    }
   } catch (error) {
     next(error);
   }
