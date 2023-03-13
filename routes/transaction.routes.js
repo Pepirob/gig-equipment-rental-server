@@ -1,36 +1,49 @@
+const isAuthenticated = require("../middlewares/auth.middlewares");
 const Equipment = require("../models/Equipment.model");
+const Transaction = require("../models/Transaction.model");
 const router = require("express").Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 module.exports = router;
 
-router.post("/create-payment-intent", async (req, res, next) => {
-  const equipId = req.body._id;
+router.post(
+  "/create-payment-intent",
+  isAuthenticated,
+  async (req, res, next) => {
+    const equipId = req.body._id;
 
-  try {
-    // TODO: pass DAY AMOUNT from Frontend service
-    const equipment = await Equipment.findById(equipId).select({
-      pricePerDay: 1,
-      deposit: 1,
-    });
+    try {
+      // TODO: pass DAY AMOUNT from Frontend service
+      const equipment = await Equipment.findById(equipId).select({
+        pricePerDay: 1,
+        deposit: 1,
+      });
 
-    const totalToCents = (equipment.pricePerDay + equipment.deposit) * 100;
+      const totalToCents = (equipment.pricePerDay + equipment.deposit) * 100;
 
-    const customer = await stripe.customers.create();
+      const customer = await stripe.customers.create();
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      customer: customer.id,
-      amount: totalToCents,
-      currency: "eur",
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
+      const paymentIntent = await stripe.paymentIntents.create({
+        customer: customer.id,
+        amount: totalToCents,
+        currency: "eur",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+      // TODO daysRented
+      await Transaction.create({
+        equipment: equipId,
+        client: req.payload._id,
+        paymentIntentId: paymentIntent.id,
+        clientSecret: paymentIntent.client_secret,
+      });
 
-    res.send({
-      clientSecret: paymentIntent.client_secret, // the client secret will be sent to the FE after the stripe payment intent creation
-    });
-  } catch (error) {
-    next(error);
+      res.send({
+        clientSecret: paymentIntent.client_secret, // the client secret will be sent to the FE after the stripe payment intent creation
+      });
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
