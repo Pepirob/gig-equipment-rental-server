@@ -1,16 +1,23 @@
+const Equipment = require("../models/Equipment.model");
 const router = require("express").Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 module.exports = router;
 
-router.post("/create-payment-intent", async (req, res) => {
-  const productId = req.body._id;
+router.post("/create-payment-intent", async (req, res, next) => {
+  const equipId = req.body._id;
 
   try {
-    // TODO . this is where you will later get the correct price to be paid
+    // TODO: pass DAY AMOUNT from Frontend service
+    const equipment = await Equipment.findById(equipId).select({
+      pricePerDay: 1,
+      deposit: 1,
+    });
+
+    const totalToCents = (equipment.pricePerDay + equipment.deposit) * 100;
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 1400, // this is an example for an amount of 14 EUR used for testing.
+      amount: totalToCents,
       currency: "eur",
       automatic_payment_methods: {
         enabled: true,
