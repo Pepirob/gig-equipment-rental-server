@@ -17,7 +17,7 @@ const transactionSchema = new Schema(
     state: {
       type: String,
       // TODO MERGE "delivered", "returned"
-      enum: ["incomplete", "succeeded"],
+      enum: ["incomplete", "succeeded", "delivered", "returned"],
       default: "incomplete",
     },
     paymentIntentId: {
