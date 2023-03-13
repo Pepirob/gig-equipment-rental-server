@@ -24,6 +24,7 @@ router.patch("/:userId", isAuthenticated, async (req, res, next) => {
 
   if (userId !== activeUserId) {
     res.status(403).json("Users cannot edit other users");
+    return;
   }
 
   try {
@@ -51,6 +52,7 @@ router.delete("/:userId", isAuthenticated, async (req, res, next) => {
 
   if (userId !== activeUserId) {
     res.status(403).json("Users cannot delete other users");
+    return;
   }
 
   try {
