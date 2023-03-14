@@ -91,3 +91,18 @@ router.patch("/update-payment-intent", async (req, res, next) => {
     next(error);
   }
 });
+
+// DELETE "/transaction/:equipmentId" => Borrar transacciones por id de equipo
+router.delete("/:equipmentId", async (req, res, next) => {
+  const { equipmentId } = req.params;
+
+  try {
+    await Transaction.deleteMany({
+      equipment: equipmentId,
+    });
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
