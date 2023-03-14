@@ -45,8 +45,6 @@ router.post("/", isAuthenticated, async (req, res, next) => {
       img,
     });
 
-    console.log(response);
-
     res.status(201).json(response._id);
   } catch (error) {
     next(error);
