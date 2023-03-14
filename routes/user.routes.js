@@ -57,14 +57,15 @@ router.delete("/:userId", isAuthenticated, async (req, res, next) => {
   }
 
   try {
-    const nonReturnedTransactions = await Transaction.find({
+    const pendingTransactions = await Transaction.find({
       state: { $nin: ["incompleted", "returned"] },
     })
       .select({ equipment: 1, client: 1 })
       .populate("equipment", "owner");
 
     if (
-      nonReturnedTransactions.some(
+      pendingTransactions &&
+      pendingTransactions.some(
         (transaction) =>
           transaction.equipment.owner === activeUserId ||
           transaction.client._id.equals(activeUserId)
