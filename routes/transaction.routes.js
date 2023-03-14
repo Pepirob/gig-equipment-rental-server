@@ -91,3 +91,14 @@ router.patch("/update-payment-intent", async (req, res, next) => {
     next(error);
   }
 });
+
+// DELETE "/transaction/:transactionId" => Borrar transaccion
+router.delete("/:transactionId", async (req, res, next) => {
+  const { transactionId } = req.params;
+
+  try {
+    await Transaction.findByIdAndDelete(transactionId);
+  } catch (error) {
+    next(error);
+  }
+});
