@@ -45,7 +45,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
       img,
     });
 
-    res.status(201).json(reponse._id);
+    res.status(201).json(response._id);
   } catch (error) {
     next(error);
   }
@@ -175,10 +175,12 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
       .select({ equipment: 1, client: 1 })
       .populate("equipment", "owner");
 
+    console.log(pendingTransactions);
+
     if (
       pendingTransactions &&
       pendingTransactions.some((transaction) =>
-        transaction.equipment.owner.equals(activeUserId)
+        transaction.equipment.equals(equId)
       )
     ) {
       res
