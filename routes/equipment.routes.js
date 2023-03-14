@@ -2,7 +2,7 @@ const Equipment = require("../models/Equipment.model");
 const User = require("../models/User.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
-const ObjectId = require("mongodb").ObjectId;
+const Transaction = require("../models/Transaction.model");
 
 // POST "/api/equipment" => Crear equipment en la DB
 router.post("/", isAuthenticated, async (req, res, next) => {
@@ -159,16 +159,36 @@ router.patch("/:equId", isAuthenticated, async (req, res, next) => {
 
 router.delete("/:equId", isAuthenticated, async (req, res, next) => {
   const { equId } = req.params;
-  const { _id } = req.payload;
   const { ownerId } = req.query;
 
-  if (_id !== ownerId) {
+  const activeUserId = req.payload._id;
+
+  if (activeUserId !== ownerId) {
     res.status(403).json("You cannot delete other user equipment");
+    return;
   }
 
   try {
-    await Equipment.findByIdAndDelete(equId);
-    res.status(200).json();
+    const pendingTransactions = await Transaction.find({
+      state: { $nin: ["incompleted", "returned"] },
+    })
+      .select({ equipment: 1, client: 1 })
+      .populate("equipment", "owner");
+
+    if (
+      pendingTransactions &&
+      pendingTransactions.some((transaction) =>
+        transaction.equipment.owner.equals(activeUserId)
+      )
+    ) {
+      res
+        .status(403)
+        .json("You cannot delete your equipment on pending transactions");
+      return;
+    } else {
+      await Equipment.findByIdAndDelete(equId);
+      res.status(200).json();
+    }
   } catch (error) {
     next(error);
   }
