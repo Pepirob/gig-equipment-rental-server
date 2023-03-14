@@ -170,7 +170,7 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
 
   try {
     const pendingTransactions = await Transaction.find({
-      state: { $nin: ["incompleted", "returned"] },
+      state: { $nin: ["incomplete", "returned"] },
     })
       .select({ equipment: 1, client: 1 })
       .populate("equipment", "owner");
