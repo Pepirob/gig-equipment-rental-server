@@ -193,3 +193,19 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
     next(error);
   }
 });
+
+router.delete("/all/:userId", async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    // await Equipment.deleteMany({
+    //   owner: userId,
+    // });
+
+    console.log("DELETED EQUIP");
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
