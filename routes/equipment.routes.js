@@ -1,0 +1,195 @@
+const Equipment = require("../models/Equipment.model");
+const User = require("../models/User.model");
+const router = require("express").Router();
+const isAuthenticated = require("../middlewares/auth.middlewares");
+const Transaction = require("../models/Transaction.model");
+
+// POST "/api/equipment" => Crear equipment en la DB
+router.post("/", isAuthenticated, async (req, res, next) => {
+  const { name, pricePerDay, deposit, description, img } = req.body;
+  const { _id } = req.payload;
+
+  try {
+    if (!name) {
+      res.status(400).json({ errorMessage: "Equipment name must be filled" });
+      return;
+    }
+
+    if (!pricePerDay) {
+      res
+        .status(400)
+        .json({ errorMessage: "Equipment must have price per day amount" });
+      return;
+    }
+
+    if (!deposit) {
+      res
+        .status(400)
+        .json({ errorMessage: "Equipment must have deposit amount" });
+      return;
+    }
+
+    if (description.length > 650) {
+      res
+        .status(400)
+        .json({ errorMessage: "Description cannot exceed 650 characters" });
+      return;
+    }
+
+    await Equipment.create({
+      owner: _id,
+      name,
+      pricePerDay,
+      deposit,
+      description,
+      img,
+    });
+
+    res.status(201).json();
+  } catch (error) {
+    next(error);
+  }
+});
+
+//  GET "/api/equipment/" => Equipos disponibles por usuario que tenga la localización de la query.
+router.get("/", async (req, res, next) => {
+  const { location } = req.query;
+
+  const locationRegex = new RegExp(location);
+
+  if (location) {
+    try {
+      const locatedUsers = await User.find({
+        location: { $regex: locationRegex },
+      }).select({ _id: 1 });
+
+      const usersIdArr = locatedUsers.map((user) => {
+        return user._id;
+      });
+
+      const locatedEquipment = await Promise.all(
+        usersIdArr.map(async (userId) => {
+          return await Equipment.find({ owner: userId, isAvailable: true });
+        })
+      );
+
+      const sortedEquipment = [...locatedEquipment]
+        .reduce((a, b) => a.concat(b), [])
+        .sort((a, b) => a.updatedAt - b.updatedAt);
+
+      res.status(200).json(sortedEquipment);
+    } catch (error) {
+      next(error);
+    }
+  } else {
+    try {
+      const response = await Equipment.find({ isAvailable: true }).sort({
+        updatedAt: -1,
+      });
+
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+});
+
+// GET "/api/equipment/wishlist" => enviar lista de deseos
+router.get("/wishlist", isAuthenticated, async (req, res, next) => {
+  try {
+    const response = await User.find().select({ wishlist: 1 });
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+module.exports = router;
+
+// GET "/api/equipment/my-equipment" => enviar lista del equipment del usuario loggeado
+router.get("/my-equipment", isAuthenticated, async (req, res, next) => {
+  const { _id } = req.payload;
+
+  try {
+    const response = await Equipment.find({ owner: _id }).sort({
+      updatedAt: -1,
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET "/api/equipment/:equId" => enviar detalles de equipment por id
+router.get("/:equId", async (req, res, next) => {
+  const { equId } = req.params;
+
+  try {
+    const response = await Equipment.findById(equId);
+    res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH "/api/equipment/:equId" => Actualizar equipment en la DB por su id
+router.patch("/:equId", isAuthenticated, async (req, res, next) => {
+  const { equId } = req.params;
+  const { owner, name, pricePerDay, deposit, description, img, isAvailable } =
+    req.body;
+
+  try {
+    await Equipment.findByIdAndUpdate(equId, {
+      owner,
+      name,
+      pricePerDay,
+      deposit,
+      description,
+      img,
+      isAvailable,
+    });
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE "/api/equipment/:equId" => Eliminar equipment en la DB por su id
+
+router.delete("/:equId", isAuthenticated, async (req, res, next) => {
+  const { equId } = req.params;
+  const { ownerId } = req.query;
+
+  const activeUserId = req.payload._id;
+
+  if (activeUserId !== ownerId) {
+    res.status(403).json("You cannot delete other user equipment");
+    return;
+  }
+
+  try {
+    const pendingTransactions = await Transaction.find({
+      state: { $nin: ["incompleted", "returned"] },
+    })
+      .select({ equipment: 1, client: 1 })
+      .populate("equipment", "owner");
+
+    if (
+      pendingTransactions &&
+      pendingTransactions.some((transaction) =>
+        transaction.equipment.owner.equals(activeUserId)
+      )
+    ) {
+      res
+        .status(403)
+        .json("You cannot delete your equipment on pending transactions");
+      return;
+    } else {
+      await Equipment.findByIdAndDelete(equId);
+      res.status(200).json();
+    }
+  } catch (error) {
+    next(error);
+  }
+});
