@@ -54,7 +54,6 @@ router.post(
         },
       });
 
-      // TODO daysRented
       await Transaction.create({
         equipment: equipId,
         client: req.payload._id,
@@ -76,7 +75,7 @@ router.patch("/update-payment-intent", async (req, res, next) => {
   const { clientSecret, paymentIntentId } = req.body;
 
   try {
-    await Transaction.findOneAndUpdate(
+    const updatedTransaction = await Transaction.findOneAndUpdate(
       {
         clientSecret: clientSecret,
         paymentIntentId: paymentIntentId,
@@ -85,6 +84,10 @@ router.patch("/update-payment-intent", async (req, res, next) => {
         state: "succeeded",
       }
     );
+
+    await Equipment.findByIdAndUpdate(updatedTransaction.equipment, {
+      isAvailable: false,
+    });
 
     res.status(200).json();
   } catch (error) {
