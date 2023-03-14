@@ -67,7 +67,7 @@ router.delete("/:userId", isAuthenticated, async (req, res, next) => {
       pendingTransactions &&
       pendingTransactions.some(
         (transaction) =>
-          transaction.equipment.equals(activeUserId) ||
+          transaction.equipment.owner.equals(activeUserId) ||
           transaction.client._id.equals(activeUserId)
       )
     ) {
@@ -76,7 +76,8 @@ router.delete("/:userId", isAuthenticated, async (req, res, next) => {
         .json("Users with pending transactions cannot delete their accounts");
       return;
     } else {
-      await User.findByIdAndDelete(userId);
+      // await User.findByIdAndDelete(userId);
+      console.log("DELEEEEEEEETEEEEEEEEEEEED");
       res.status(200).json();
     }
   } catch (error) {
