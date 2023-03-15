@@ -110,7 +110,7 @@ router.delete("/:equipmentId", async (req, res, next) => {
   }
 });
 
-// DELETE "/transaction/user/:userId" => Borrar transacciones pxor id de usuario
+// DELETE "/transaction/user/:userId" => Borrar transacciones por id de usuario
 router.delete("/user/:userId", async (req, res, next) => {
   const { userId } = req.params;
 
