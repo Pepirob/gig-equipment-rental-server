@@ -125,7 +125,7 @@ router.get("/:equId", async (req, res, next) => {
   const { equId } = req.params;
 
   try {
-    const response = await Equipment.findById(equId);
+    const response = await Equipment.findById(equId).populate("owner");
     res.status(200).json(response);
   } catch (error) {
     next(error);
