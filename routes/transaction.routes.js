@@ -106,3 +106,14 @@ router.delete("/:equipmentId", async (req, res, next) => {
     next(error);
   }
 });
+
+// GET "/transaction" => enviar transacciones
+router.get("/", isAuthenticated, async (req, res, next) => {
+  try {
+    const allTransactions = await Transaction.find().populate("equipment");
+
+    res.status(200).json(allTransactions);
+  } catch (error) {
+    next(error);
+  }
+});
