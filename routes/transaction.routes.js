@@ -124,7 +124,9 @@ router.get("/:transactionId", async (req, res, next) => {
   const { transactionId } = req.params;
 
   try {
-    const foundTransaction = await Transaction.findById(transactionId);
+    const foundTransaction = await Transaction.findById(transactionId).populate(
+      "equipment"
+    );
     res.status(200).json(foundTransaction);
   } catch (error) {
     next(err);
