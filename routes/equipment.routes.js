@@ -51,7 +51,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 
-//  GET "/api/equipment/" => Equipos disponibles por usuario que tenga la localización de la query.
+//  GET "/api/equipment" => Equipos disponibles por usuario que tenga la localización de la query.
 router.get("/", async (req, res, next) => {
   const { location } = req.query;
 

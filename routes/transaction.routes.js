@@ -42,7 +42,7 @@ router.post(
       };
 
       // TODO bind payment method to paymentIntent instead of customer ID
-      // Will implie pick credit cart from frontend,
+      // Will implie pick credit card from frontend,
       // tokenize it with Stripe tools,
       const paymentIntent = await stripe.paymentIntents.create({
         customer: getCustomer(),
@@ -91,6 +91,25 @@ router.patch("/update-payment-intent", async (req, res, next) => {
       isAvailable: false,
     });
 
+    res.status(200).json(updatedTransaction);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH "/transaction/transactionId" => actualizar estado de transacción
+router.patch("/:transactionId", async (req, res, next) => {
+  const { transactionId } = req.params;
+  const { state } = req.body;
+
+  try {
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+      transactionId,
+      {
+        state,
+      },
+      { new: true }
+    ).populate("equipment");
     res.status(200).json(updatedTransaction);
   } catch (error) {
     next(error);
