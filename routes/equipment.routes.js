@@ -175,8 +175,6 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
       .select({ equipment: 1, client: 1 })
       .populate("equipment", "owner");
 
-    console.log(pendingTransactions);
-
     if (
       pendingTransactions &&
       pendingTransactions.some((transaction) =>
