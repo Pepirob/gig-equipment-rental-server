@@ -36,7 +36,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
       return;
     }
 
-    await Equipment.create({
+    const response = await Equipment.create({
       owner: _id,
       name,
       pricePerDay,
@@ -45,7 +45,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
       img,
     });
 
-    res.status(201).json();
+    res.status(201).json(response._id);
   } catch (error) {
     next(error);
   }
@@ -170,15 +170,14 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
 
   try {
     const pendingTransactions = await Transaction.find({
-      state: { $nin: ["incompleted", "returned"] },
+      state: { $nin: ["incomplete", "returned"] },
     })
       .select({ equipment: 1, client: 1 })
       .populate("equipment", "owner");
-
     if (
       pendingTransactions &&
       pendingTransactions.some((transaction) =>
-        transaction.equipment.owner.equals(activeUserId)
+        transaction.equipment.equals(equId)
       )
     ) {
       res
@@ -189,6 +188,20 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
       await Equipment.findByIdAndDelete(equId);
       res.status(200).json();
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/all/:userId", async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    await Equipment.deleteMany({
+      owner: userId,
+    });
+
+    res.status(200).json();
   } catch (error) {
     next(error);
   }

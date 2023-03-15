@@ -1,4 +1,5 @@
 const User = require("../models/User.model");
+const Transaction = require("../models/Transaction.model");
 const router = require("express").Router();
 const isAuthenticated = require("../middlewares/auth.middlewares");
 
@@ -24,6 +25,7 @@ router.patch("/:userId", isAuthenticated, async (req, res, next) => {
 
   if (userId !== activeUserId) {
     res.status(403).json("Users cannot edit other users");
+    return;
   }
 
   try {
@@ -51,11 +53,33 @@ router.delete("/:userId", isAuthenticated, async (req, res, next) => {
 
   if (userId !== activeUserId) {
     res.status(403).json("Users cannot delete other users");
+    return;
   }
 
   try {
-    await User.findByIdAndDelete(req.params.userId);
-    res.status(200).json();
+    const pendingTransactions = await Transaction.find({
+      state: { $nin: ["incomplete", "returned"] },
+    })
+      .select({ equipment: 1, client: 1 })
+      .populate("equipment", "owner");
+    if (
+      pendingTransactions &&
+      pendingTransactions.some(
+        (transaction) =>
+          transaction.equipment.owner.equals(activeUserId) ||
+          transaction.client._id.equals(activeUserId)
+      )
+    ) {
+      res
+        .status(403)
+        .json("Users with pending transactions cannot delete their accounts");
+
+      return;
+    } else {
+      await User.findByIdAndDelete(userId);
+
+      res.status(200).json();
+    }
   } catch (error) {
     next(error);
   }
