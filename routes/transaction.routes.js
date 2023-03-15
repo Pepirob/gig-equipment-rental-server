@@ -58,6 +58,7 @@ router.post(
       await Transaction.create({
         equipment: equipId,
         client: req.payload._id,
+        daysRented: totalDays,
         paymentIntentId: paymentIntent.id,
         clientSecret: paymentIntent.client_secret,
       });
@@ -115,5 +116,17 @@ router.get("/", isAuthenticated, async (req, res, next) => {
     res.status(200).json(allTransactions);
   } catch (error) {
     next(error);
+  }
+});
+
+// GET "/transaction/:transactionId" => enviar detalles transacciones
+router.get("/:transactionId", async (req, res, next) => {
+  const { transactionId } = req.params;
+
+  try {
+    const foundTransaction = await Transaction.findById(transactionId);
+    res.status(200).json(foundTransaction);
+  } catch (error) {
+    next(err);
   }
 });
