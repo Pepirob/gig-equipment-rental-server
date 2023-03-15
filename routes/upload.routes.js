@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const uploader = require("../middlewares/cloudinary.middlewares");
 
+// TODO: transform and optimize uploaded files depending on route, then DRY
+
 // POST "/api/upload/equipmentImg" => Subir imagen de equipment a Cloudinary
 router.post("/equipmentImg", uploader.single("image"), (req, res, next) => {
   console.log("file is: ", req.file);

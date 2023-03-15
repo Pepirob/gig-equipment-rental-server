@@ -42,7 +42,7 @@ router.post(
       };
 
       // TODO bind payment method to paymentIntent instead of customer ID
-      // Will implie pick credit cart from frontend,
+      // Will implie pick credit card from frontend,
       // tokenize it with Stripe tools,
       const paymentIntent = await stripe.paymentIntents.create({
         customer: getCustomer(),
@@ -57,6 +57,7 @@ router.post(
       await Transaction.create({
         equipment: equipId,
         client: req.payload._id,
+        daysRented: totalDays,
         paymentIntentId: paymentIntent.id,
         clientSecret: paymentIntent.client_secret,
       });
@@ -82,14 +83,34 @@ router.patch("/update-payment-intent", async (req, res, next) => {
       },
       {
         state: "succeeded",
-      }
-    );
+      },
+      { new: true }
+    ).populate("equipment");
 
     await Equipment.findByIdAndUpdate(updatedTransaction.equipment, {
       isAvailable: false,
     });
 
-    res.status(200).json();
+    res.status(200).json(updatedTransaction);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH "/transaction/transactionId" => actualizar estado de transacción
+router.patch("/:transactionId", async (req, res, next) => {
+  const { transactionId } = req.params;
+  const { state } = req.body;
+
+  try {
+    const updatedTransaction = await Transaction.findByIdAndUpdate(
+      transactionId,
+      {
+        state,
+      },
+      { new: true }
+    ).populate("equipment");
+    res.status(200).json(updatedTransaction);
   } catch (error) {
     next(error);
   }
@@ -105,6 +126,17 @@ router.delete("/:equipmentId", async (req, res, next) => {
     });
 
     res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET "/transaction" => enviar transacciones
+router.get("/", isAuthenticated, async (req, res, next) => {
+  try {
+    const allTransactions = await Transaction.find().populate("equipment");
+
+    res.status(200).json(allTransactions);
   } catch (error) {
     next(error);
   }
@@ -139,5 +171,19 @@ router.delete("/user/:userId", async (req, res, next) => {
     res.status(200).json();
   } catch (error) {
     next(error);
+  }
+});
+
+// GET "/transaction/:transactionId" => enviar detalles transacciones
+router.get("/:transactionId", async (req, res, next) => {
+  const { transactionId } = req.params;
+
+  try {
+    const foundTransaction = await Transaction.findById(transactionId).populate(
+      "equipment"
+    );
+    res.status(200).json(foundTransaction);
+  } catch (error) {
+    next(err);
   }
 });

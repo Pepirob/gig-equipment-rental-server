@@ -51,7 +51,7 @@ router.post("/", isAuthenticated, async (req, res, next) => {
   }
 });
 
-//  GET "/api/equipment/" => Equipos disponibles por usuario que tenga la localización de la query.
+//  GET "/api/equipment" => Equipos disponibles por usuario que tenga la localización de la query.
 router.get("/", async (req, res, next) => {
   const { location } = req.query;
 
@@ -125,7 +125,7 @@ router.get("/:equId", async (req, res, next) => {
   const { equId } = req.params;
 
   try {
-    const response = await Equipment.findById(equId);
+    const response = await Equipment.findById(equId).populate("owner");
     res.status(200).json(response);
   } catch (error) {
     next(error);
@@ -183,9 +183,11 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
       res
         .status(403)
         .json("You cannot delete your equipment on pending transactions");
+
       return;
     } else {
       await Equipment.findByIdAndDelete(equId);
+
       res.status(200).json();
     }
   } catch (error) {
