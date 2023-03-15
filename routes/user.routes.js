@@ -77,7 +77,7 @@ router.delete("/:userId", isAuthenticated, async (req, res, next) => {
       return;
     } else {
       // await User.findByIdAndDelete(userId);
-      console.log("DELEEEEEEEETEEEEEEEEEEEED");
+      console.log("USER DELETED");
       res.status(200).json();
     }
   } catch (error) {

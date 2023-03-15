@@ -109,3 +109,35 @@ router.delete("/:equipmentId", async (req, res, next) => {
     next(error);
   }
 });
+
+// DELETE "/transaction/user/:userId" => Borrar transacciones pxor id de usuario
+router.delete("/user/:userId", async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    const allTransactions = await Transaction.find({
+      state: { $in: ["incomplete", "returned"] },
+    })
+      .select({ equipment: 1, client: 1 })
+      .populate("equipment", "owner");
+
+    const userTransactions = allTransactions
+      .filter((transaction) => {
+        return (
+          transaction.equipment.owner.equals(userId) ||
+          transaction.client.equals(userId)
+        );
+      })
+      .reduce((acc, curr) => {
+        return [curr._id, ...acc];
+      }, []);
+
+    await Transaction.deleteMany({
+      _id: userTransactions,
+    });
+
+    res.status(200).json();
+  } catch (error) {
+    next(error);
+  }
+});
