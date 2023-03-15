@@ -83,14 +83,15 @@ router.patch("/update-payment-intent", async (req, res, next) => {
       },
       {
         state: "succeeded",
-      }
-    );
+      },
+      { new: true }
+    ).populate("equipment");
 
     await Equipment.findByIdAndUpdate(updatedTransaction.equipment, {
       isAvailable: false,
     });
 
-    res.status(200).json();
+    res.status(200).json(updatedTransaction);
   } catch (error) {
     next(error);
   }
