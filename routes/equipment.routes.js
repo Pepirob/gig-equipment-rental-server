@@ -174,7 +174,6 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
     })
       .select({ equipment: 1, client: 1 })
       .populate("equipment", "owner");
-
     if (
       pendingTransactions &&
       pendingTransactions.some((transaction) =>
@@ -184,11 +183,27 @@ router.delete("/:equId", isAuthenticated, async (req, res, next) => {
       res
         .status(403)
         .json("You cannot delete your equipment on pending transactions");
+
       return;
     } else {
       await Equipment.findByIdAndDelete(equId);
+
       res.status(200).json();
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/all/:userId", async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    await Equipment.deleteMany({
+      owner: userId,
+    });
+
+    res.status(200).json();
   } catch (error) {
     next(error);
   }

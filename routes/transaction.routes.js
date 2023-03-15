@@ -54,7 +54,6 @@ router.post(
         },
       });
 
-      // TODO daysRented
       await Transaction.create({
         equipment: equipId,
         client: req.payload._id,
@@ -77,7 +76,7 @@ router.patch("/update-payment-intent", async (req, res, next) => {
   const { clientSecret, paymentIntentId } = req.body;
 
   try {
-    await Transaction.findOneAndUpdate(
+    const updatedTransaction = await Transaction.findOneAndUpdate(
       {
         clientSecret: clientSecret,
         paymentIntentId: paymentIntentId,
@@ -86,6 +85,10 @@ router.patch("/update-payment-intent", async (req, res, next) => {
         state: "succeeded",
       }
     );
+
+    await Equipment.findByIdAndUpdate(updatedTransaction.equipment, {
+      isAvailable: false,
+    });
 
     res.status(200).json();
   } catch (error) {
@@ -114,6 +117,38 @@ router.get("/", isAuthenticated, async (req, res, next) => {
     const allTransactions = await Transaction.find().populate("equipment");
 
     res.status(200).json(allTransactions);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE "/transaction/user/:userId" => Borrar transacciones por id de usuario
+router.delete("/user/:userId", async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    const allTransactions = await Transaction.find({
+      state: { $in: ["incomplete", "returned"] },
+    })
+      .select({ equipment: 1, client: 1 })
+      .populate("equipment", "owner");
+
+    const userTransactions = allTransactions
+      .filter((transaction) => {
+        return (
+          transaction.equipment.owner.equals(userId) ||
+          transaction.client.equals(userId)
+        );
+      })
+      .reduce((acc, curr) => {
+        return [curr._id, ...acc];
+      }, []);
+
+    await Transaction.deleteMany({
+      _id: userTransactions,
+    });
+
+    res.status(200).json();
   } catch (error) {
     next(error);
   }
