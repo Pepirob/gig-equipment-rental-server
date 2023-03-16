@@ -131,10 +131,12 @@ router.delete("/:equipmentId", async (req, res, next) => {
   }
 });
 
-// GET "/transaction" => enviar transacciones
+// GET "/transaction" => enviar transacciones excepto incompletas
 router.get("/", isAuthenticated, async (req, res, next) => {
   try {
-    const allTransactions = await Transaction.find().populate("equipment");
+    const allTransactions = await Transaction.find({
+      state: { $ne: "incomplete" },
+    }).populate("equipment");
 
     res.status(200).json(allTransactions);
   } catch (error) {
