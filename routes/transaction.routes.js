@@ -186,6 +186,6 @@ router.get("/:transactionId", async (req, res, next) => {
     );
     res.status(200).json(foundTransaction);
   } catch (error) {
-    next(err);
+    next(error);
   }
 });
