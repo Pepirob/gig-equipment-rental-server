@@ -328,7 +328,7 @@ clientSecret - String // required
 
 ### Trello/Kanban
 
-[Link to your trello board](https://trello.com/b/qCtu6Mm3/proyecto-m3) or picture of your physical board
+[TRELLO](https://trello.com/b/qCtu6Mm3/proyecto-m3) or picture of your physical board
 
 ### Git
 
