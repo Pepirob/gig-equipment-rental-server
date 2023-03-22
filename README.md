@@ -1,8 +1,45 @@
 # CoverGig
 
-## Description
+## Project Tech Description
+
+A single page application built over MERN stack
+
+This project is generated with:
+
+- [Ironlauncher](https://www.npmjs.com/package/ironlauncher) on server side
+- [Create-React-App](https://create-react-app.dev/) on client side
+
+## Product Description
 
 CoverGig is an app for the rental of instruments and sound equipment for concerts between individuals.
+
+## Getting Started
+
+### Install dependencies:
+
+```bash
+npm install
+# or
+yarn add
+```
+
+### Set environment:
+
+This project is using Cloudinary as image storage, [Stripe](https://stripe.com/en-es) software for payment system. Place your required secrets on:
+
+```bash
+gig-equipment-rental-server/.env
+```
+
+### Run
+
+After placing your local MONGO URI, run on dev mode:
+
+```bash
+npm run dev
+# or
+yarn rev
+```
 
 ## User Stories
 
