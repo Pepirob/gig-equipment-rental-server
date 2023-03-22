@@ -25,7 +25,7 @@ yarn add
 
 ### Set environment:
 
-This project is using Cloudinary as image storage, [Stripe](https://stripe.com/en-es) software for payment system. Place your required secrets on:
+This project is using [Cloudinary](https://cloudinary.com/) as image storage, [Stripe](https://stripe.com/en-es) software for payment system and [Jason-Web-Tokens](https://jwt.io/) as authentication/authorization method. Place your required secrets on:
 
 ```bash
 gig-equipment-rental-server/.env
@@ -48,6 +48,7 @@ yarn rev
 - **Register/Login:** As a user I can login to the platform so that I can access to the site utilities.
 - **Logout:** As a user I can logout from the platform so no one else can use it.
 - **Edit/delete profile:** As a user I can edit and delete my own account so I have own management will.
+- **Renting process ensurence:** As a user I can't delete equipment, nor my account whenever a transaction process is opened so that the exchange is safer
 - **Rent your Equipment** As a user I can upload my own equipment for renting others
 - **List Equipment** As a user I want to see the equipment so that i can choose one to rent
 - **Search Equipment by location** As a user I want to search equipment by location so that I can rent nearby equipment
