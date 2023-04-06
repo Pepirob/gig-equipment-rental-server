@@ -35,6 +35,15 @@ router.patch("/:userId", isAuthenticated, async (req, res, next) => {
     req.body;
 
   try {
+    const foundUserByName = await User.findOne({ username });
+
+    if (foundUserByName) {
+      res.status(400).json({
+        errorMessage: "User with username already exists",
+      });
+      return;
+    }
+
     await User.findByIdAndUpdate(userId, {
       email,
       username,
