@@ -19,16 +19,31 @@ router.get("/:userId", isAuthenticated, async (req, res, next) => {
 router.patch("/:userId", isAuthenticated, async (req, res, next) => {
   const { userId } = req.params;
   const activeUserId = req.payload._id;
+  const patchedFields = Object.keys(req.body);
 
-  const { email, username, location, phoneNumber, wishlist, img, creditCard } =
-    req.body;
+  if (patchedFields.some((field) => !req.body[field])) {
+    res.status(400).json({ errorMessage: "Fields must be filled" });
+    return;
+  }
 
   if (userId !== activeUserId) {
     res.status(403).json("Users cannot edit other users");
     return;
   }
 
+  const { email, username, location, phoneNumber, wishlist, img, creditCard } =
+    req.body;
+
   try {
+    const foundUserByName = await User.findOne({ username });
+
+    if (foundUserByName) {
+      res.status(400).json({
+        errorMessage: "User with username already exists",
+      });
+      return;
+    }
+
     await User.findByIdAndUpdate(userId, {
       email,
       username,
@@ -39,7 +54,7 @@ router.patch("/:userId", isAuthenticated, async (req, res, next) => {
       creditCard,
     });
 
-    res.status(200).json();
+    res.status(201).json();
   } catch (error) {
     next(error);
   }
